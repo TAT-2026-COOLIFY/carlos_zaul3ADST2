@@ -28,7 +28,7 @@ export class ClienteService {
   criar(dados: DadosCliente): Observable<Cliente> {
     const novoCliente: Cliente = {
       ...dados,
-      id: crypto.randomUUID(),
+      id: this.gerarIdentificador(),
       criadoEm: new Date().toISOString(),
     };
     this.atualizarLista([...this.clientesInternos(), novoCliente]);
@@ -50,6 +50,23 @@ export class ClienteService {
   excluir(id: string): Observable<void> {
     this.atualizarLista(this.clientesInternos().filter((cliente) => cliente.id !== id));
     return of(void 0);
+  }
+
+  private gerarIdentificador(): string {
+    if (typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hexadecimal = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+    return [
+      hexadecimal.slice(0, 8),
+      hexadecimal.slice(8, 12),
+      hexadecimal.slice(12, 16),
+      hexadecimal.slice(16, 20),
+      hexadecimal.slice(20),
+    ].join('-');
   }
 
   private atualizarLista(clientes: Cliente[]): void {
