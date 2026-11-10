@@ -1,0 +1,65 @@
+<section class="cartao">
+  <header class="cartao-cabecalho">
+    <div>
+      <h1>Clientes</h1>
+      <p class="subtitulo">{{ totalCadastrado() }} cadastrado(s)</p>
+    </div>
+    <a class="botao botao-primario" routerLink="/clientes/novo">Novo cliente</a>
+  </header>
+
+  <input
+    class="campo campo-busca"
+    type="search"
+    placeholder="Buscar por nome, e-mail ou CPF"
+    [value]="termoBusca()"
+    (input)="atualizarBusca($event)"
+  />
+
+  @if (clientesFiltrados().length === 0) {
+    <p class="estado-vazio">
+      @if (totalCadastrado() === 0) {
+        Nenhum cliente cadastrado ainda.
+      } @else {
+        Nenhum cliente corresponde à busca.
+      }
+    </p>
+  } @else {
+    <div class="tabela-container">
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>Cidade/UF</th>
+            <th>Situação</th>
+            <th>Cadastro</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cliente of clientesFiltrados(); track cliente.id) {
+            <tr>
+              <td>{{ cliente.nome }}</td>
+              <td>{{ cliente.cpf }}</td>
+              <td>{{ cliente.email }}</td>
+              <td>{{ cliente.telefone }}</td>
+              <td>{{ cliente.cidade }}{{ cliente.cidade && cliente.uf ? '/' : '' }}{{ cliente.uf }}</td>
+              <td>
+                <span class="selo" [class.selo-inativo]="!cliente.ativo">
+                  {{ cliente.ativo ? 'Ativo' : 'Inativo' }}
+                </span>
+              </td>
+              <td>{{ cliente.criadoEm | date: 'dd/MM/yyyy' }}</td>
+              <td class="acoes">
+                <a class="botao botao-secundario" [routerLink]="['/clientes', cliente.id, 'editar']">Editar</a>
+                <button class="botao botao-perigo" type="button" (click)="excluir(cliente)">Excluir</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
